@@ -56,6 +56,8 @@ const resources = {
         seats: '可坐 {{count}} 人',
         quick_enter: '快速进入 A08 桌',
         img_alt: '热气腾腾的火锅菜品',
+        recommended_title: '人气好菜抢先看',
+        recommended_subtitle: '点击即绑桌点餐，好味不用等',
         area: {
           hall: '大厅',
           booth: '卡座',
@@ -294,6 +296,8 @@ const resources = {
         seats: 'Seats {{count}}',
         quick_enter: 'Quick Enter Table A08',
         img_alt: 'Steaming hotpot dishes',
+        recommended_title: 'Popular Picks',
+        recommended_subtitle: 'Tap to bind table and order instantly',
         area: {
           hall: 'Hall',
           booth: 'Booth',
