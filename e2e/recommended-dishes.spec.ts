@@ -157,18 +157,18 @@ test.describe('首页推荐菜模块 - E2E 验收测试', () => {
     })
 
     test('NFR-003: 英文模式下推荐菜模块正常展示', async ({ page }) => {
+      // TopBar 语言切换不在首页渲染，通过 localStorage 设置英文
+      await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'))
       await page.goto('/')
-      // 切换到英文
-      await page.getByRole('button', { name: /EN|英文|English/i }).first().click()
       // 英文标题
       await expect(page.getByText('Popular Picks')).toBeVisible()
       await expect(page.getByText('Tap to bind table and order instantly')).toBeVisible()
     })
 
     test('NFR-004: 英文模式下点击推荐菜跳转菜单页', async ({ page }) => {
-      await page.goto('/')
-      await page.getByRole('button', { name: /EN|英文|English/i }).first().click()
-      const dishCards = page.locator('section').filter({ hasText: 'Popular Picks' }).locator('button')
+      await page.addInitScript(() => localStorage.setItem("i18nextLng", "en"))
+      await page.goto("/")
+      const dishCards = page.locator("section").filter({ hasText: "Popular Picks" }).locator("button")
       await dishCards.nth(0).click()
       await expect(page).toHaveURL(/#\/menu$/)
     })
