@@ -87,7 +87,7 @@ export default function App() {
   }
 
   if (state.view === 'home' || !state.table) {
-    return <HomeView onBind={(table) => dispatch({ type: 'BIND_TABLE', table })} />
+    return <HomeView onBind={(table) => dispatch({ type: 'BIND_TABLE', table })} onQuickOrder={() => { dispatch({ type: 'BIND_TABLE', table: 'A08' }); dispatch({ type: 'SET_VIEW', view: 'menu' }) }} />
   }
 
   if (state.view === 'welcome') {
