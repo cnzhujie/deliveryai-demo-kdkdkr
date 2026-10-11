@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 /**
  * 推荐菜模块 E2E 验收测试
@@ -171,6 +171,61 @@ test.describe('首页推荐菜模块 - E2E 验收测试', () => {
       const dishCards = page.locator("section").filter({ hasText: "Popular Picks" }).locator("button")
       await dishCards.nth(0).click()
       await expect(page).toHaveURL(/#\/menu$/)
+    })
+  })
+
+  test.describe('BUG-FIX: 已绑桌台时点击推荐菜保留当前桌台', () => {
+    test('BUG-001: 从非 A08 桌台返回首页点推荐菜，保留原桌台和购物车', async ({ page }) => {
+      // 1. 首页绑定 B12 桌台
+      await page.goto('/')
+      await page.getByRole('button', { name: /B12/ }).click()
+      await expect(page).toHaveURL(/#\/welcome$/)
+
+      // 2. 进入点餐
+      await page.getByRole('button', { name: /进入点餐/ }).click()
+      await expect(page).toHaveURL(/#\/menu$/)
+
+      // 3. 添加一道菜到购物车
+      const productCards = page.locator('article')
+      await productCards.first().locator('button').last().click()
+      await page.getByRole('button', { name: /加入本桌购物车/ }).click()
+
+      // 验证购物车有 1 份菜品
+      await expect(page.getByText('共 1 份菜品')).toBeVisible()
+
+      // 4. 返回首页（menu → welcome → home）
+      await page.goBack()
+      await expect(page).toHaveURL(/#\/welcome$/)
+      await page.goBack()
+      await expect(page).toHaveURL(/#\/home$/)
+
+      // 5. 点击推荐菜
+      const dishCards = page.locator('section').filter({ hasText: '人气好菜抢先看' }).locator('button')
+      await dishCards.nth(0).click()
+
+      // 6. 验证跳转到菜单页
+      await expect(page).toHaveURL(/#\/menu$/)
+
+      // 7. 验证桌台仍为 B12（非 A08）
+      await expect(page.getByText('B12 · 卡座')).toBeVisible()
+
+      // 8. 验证购物车数据保留
+      await expect(page.getByText('共 1 份菜品')).toBeVisible()
+    })
+
+    test('BUG-002: 未绑桌台时点击推荐菜仍绑定 A08 并跳转菜单页', async ({ page }) => {
+      await page.goto('/')
+      await expect(page).toHaveURL(/#\/home$/)
+
+      // 未绑桌台状态点击推荐菜
+      const dishCards = page.locator('section').filter({ hasText: '人气好菜抢先看' }).locator('button')
+      await dishCards.nth(0).click()
+
+      // 验证跳转到菜单页
+      await expect(page).toHaveURL(/#\/menu$/)
+
+      // 验证桌台为 A08
+      await expect(page.getByText('A08 · 大厅')).toBeVisible()
     })
   })
 })
