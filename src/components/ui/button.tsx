@@ -12,7 +12,7 @@ const buttonVariants = cva(
         outline: 'border border-charcoal-900/10 bg-white text-charcoal-900 hover:border-chili-500/30 hover:bg-chili-50',
         ghost: 'text-charcoal-700 hover:bg-rice-200',
       },
-      size: { default: 'h-11 px-5', sm: 'h-9 rounded-lg px-3', icon: 'h-11 w-11 p-0' },
+      size: { default: 'h-11 px-5', sm: 'h-11 rounded-lg px-3', icon: 'h-11 w-11 p-0' },
     },
     defaultVariants: { variant: 'default', size: 'default' },
   },

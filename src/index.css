@@ -20,7 +20,7 @@ button, input { font: inherit; }
 .elderly .text-white\/40 { color: rgb(255 255 255 / 0.8); }
 
 /* 老人模式：主要交互元素触控区域 ≥ 44px */
-.elderly button { min-height: 2.2rem; }
+.elderly button { min-height: 2.75rem; }
 
 /* 界面状态切换平滑过渡 */
 html { transition: background-color 250ms ease, color 250ms ease, font-size 250ms ease; }
