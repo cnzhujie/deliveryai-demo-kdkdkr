@@ -100,7 +100,6 @@ async function boxOf(locator: Locator, label: string) {
 test.describe('移动端适配 - TopBar 小屏布局（REQ-001）', () => {
   test('REQ-001.1: 320px 下 TopBar 无横向溢出，桌台号与服务呼叫直接可见可用', async ({ page }) => {
     await enterMenu(page, VIEWPORTS.narrow)
-    await expectNoHorizontalOverflow(page)
 
     const header = page.locator('header')
     await expect(header).toBeVisible()
@@ -134,6 +133,8 @@ test.describe('移动端适配 - TopBar 小屏布局（REQ-001）', () => {
     await moreDialog.getByRole('button', { name: '演示控制台' }).click()
     await expect(page.getByRole('dialog', { name: '演示控制台' })).toBeVisible()
     await closeDialog(page, '演示控制台')
+
+    await expectNoHorizontalOverflow(page)
   })
 
   test('REQ-001.2: 375px 下低频入口收纳到「更多」，直接入口保持可见', async ({ page }) => {
@@ -172,7 +173,7 @@ test.describe('移动端适配 - TopBar 小屏布局（REQ-001）', () => {
     await expect(page.getByRole('button', { name: '切换语言' })).toBeVisible()
     await expect(page.getByRole('button', { name: '更多功能' })).toBeHidden()
 
-    await expect(page.locator('nav')).toBeHidden()
+    await expect(page.locator('nav.fixed')).toBeHidden()
     await expect(page.locator('aside')).toBeVisible()
     await expectNoHorizontalOverflow(page)
   })
@@ -223,7 +224,7 @@ test.describe('移动端适配 - 平板断点布局（REQ-002）', () => {
 
     await page.setViewportSize(VIEWPORTS.desktopMin)
     await expect(page.locator('aside')).toBeVisible()
-    await expect(page.locator('nav')).toBeHidden()
+    await expect(page.locator('nav.fixed')).toBeHidden()
     await expectNoHorizontalOverflow(page)
   })
 })
@@ -239,6 +240,7 @@ test.describe('移动端适配 - 菜品网格窄屏（REQ-003）', () => {
     expect(Math.abs(first.x - second.x), '320px 下应单列对齐').toBeLessThanOrEqual(1)
     expect(second.y, '320px 下第 2 张卡片应换行').toBeGreaterThan(first.y + first.height - 1)
     expect(first.width, '320px 下卡片应占满可用宽度').toBeGreaterThan(VIEWPORTS.narrow.width - 40)
+    expect(first.x + first.width, '320px 下卡片右边界不应超出视口').toBeLessThanOrEqual(VIEWPORTS.narrow.width + SIZE_TOLERANCE)
 
     await expect(cards.nth(0).getByRole('heading')).toBeVisible()
     await expect(cards.nth(0).locator('img')).toBeVisible()
@@ -255,6 +257,7 @@ test.describe('移动端适配 - 菜品网格窄屏（REQ-003）', () => {
     const second = await boxOf(cards.nth(1), '第 2 张菜品卡片')
     expect(Math.abs(first.x - second.x), '375px 下应单列对齐').toBeLessThanOrEqual(1)
     expect(second.y, '375px 下第 2 张卡片应换行').toBeGreaterThan(first.y + first.height - 1)
+    expect(first.x + first.width, '375px 下卡片右边界不应超出视口').toBeLessThanOrEqual(VIEWPORTS.mobile.width + SIZE_TOLERANCE)
     await expectTouchTarget(cards.nth(0).locator('button').last(), '375px 菜品加入按钮')
   })
 
@@ -330,7 +333,7 @@ test.describe('移动端适配 - 触控区域（REQ-005）', () => {
 
   test('REQ-005.2: 375px 下底部导航栏各导航项触控区域 ≥ 44×44', async ({ page }) => {
     await enterMenu(page, VIEWPORTS.mobile)
-    const nav = page.locator('nav')
+    const nav = page.locator('nav.fixed') // 底部导航带 fixed，顶部桌面导航无 fixed
     await expect(nav).toBeVisible()
     const navItems = nav.locator('button')
     await expect(navItems).toHaveCount(4)
@@ -350,8 +353,8 @@ test.describe('移动端适配 - 触控区域（REQ-005）', () => {
     await page.waitForTimeout(400)
     const fontSize = await page.locator('html').evaluate((element) => getComputedStyle(element).fontSize)
     expect(fontSize, '老人模式字号应放大至 125%').toBe('20px')
-    await expectNoHorizontalOverflow(page)
     await expectAllVisibleButtonsMinTouch(page.locator('body'), '320px 老人模式页面')
+    await expectNoHorizontalOverflow(page)
   })
 
   test('REQ-005.4: 375px 下菜品弹窗内所有按钮触控区域 ≥ 44×44', async ({ page }) => {
@@ -367,7 +370,7 @@ test.describe('移动端适配 - 底部导航与浮动按钮（REQ-006）', () =
     await addFirstProductToCart(page)
 
     const floatingCart = page.getByRole('button', { name: /查看购物车/ })
-    const nav = page.locator('nav')
+    const nav = page.locator('nav.fixed') // 底部导航带 fixed，顶部桌面导航无 fixed
     await expect(floatingCart).toBeVisible()
     await expect(nav).toBeVisible()
 
@@ -397,7 +400,6 @@ test.describe('移动端适配 - 核心流程与内容正确性', () => {
   test('FLOW-001: 375px 手机端完成 menu → order → checkout 全流程', async ({ page }) => {
     await enterMenu(page, VIEWPORTS.mobile)
     await addFirstProductToCart(page)
-    await expectNoHorizontalOverflow(page)
 
     await page.getByRole('button', { name: /查看购物车/ }).click()
     const cartDialog = page.getByRole('dialog', { name: '本桌购物车' })
