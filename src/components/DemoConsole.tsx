@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
-import { CheckCircle2, ChefHat, RotateCcw, Store, ToggleLeft, UtensilsCrossed, XCircle } from 'lucide-react'
+import { CheckCircle2, ChefHat, RotateCcw, Store, ToggleLeft, Trash2, UtensilsCrossed, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { products, tableAreas } from '@/data/menu'
-import type { OrderStage, ServiceRequest } from '@/types'
+import type { LogEntry, OrderStage, ServiceRequest } from '@/types'
 
 const stageIcons: Record<OrderStage, typeof ChefHat> = {
   submitted: Store,
@@ -19,18 +19,21 @@ interface DemoConsoleProps {
   stage: OrderStage
   soldOut: string[]
   services: ServiceRequest[]
+  logs: LogEntry[]
   onOpenChange: (open: boolean) => void
   onStage: (stage: OrderStage) => void
   onSoldOut: (id: string) => void
   onRespond: () => void
   onReset: () => void
+  onClearLogs: () => void
 }
 
-export function DemoConsole({ open, table, stage, soldOut, services, onOpenChange, onStage, onSoldOut, onRespond, onReset }: DemoConsoleProps) {
+export function DemoConsole({ open, table, stage, soldOut, services, logs, onOpenChange, onStage, onSoldOut, onRespond, onReset, onClearLogs }: DemoConsoleProps) {
   const { t } = useTranslation()
   const waiting = services.filter((service) => service.status === 'waiting').length
   const areaKey = tableAreas[table]
   const tableLabel = areaKey ? `${table} · ${t(areaKey)}` : table
+  const reversedLogs = [...logs].reverse()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent title={t('console.title')} className="md:max-w-2xl">
@@ -49,6 +52,24 @@ export function DemoConsole({ open, table, stage, soldOut, services, onOpenChang
         <section className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between"><h3 className="font-bold text-charcoal-900">{t('console.soldout_title')}</h3><span className="flex items-center gap-1 text-xs text-charcoal-500"><ToggleLeft size={16} />{t('console.soldout_hint')}</span></div>
           <div className="scrollbar-none mt-4 flex gap-2 overflow-x-auto pb-1">{products.map((product) => { const unavailable = soldOut.includes(product.id); return <button key={product.id} onClick={() => onSoldOut(product.id)} className={`flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold ${unavailable ? 'border-chili-500/30 bg-chili-50 text-chili-600' : 'border-charcoal-900/5 bg-rice-50 text-charcoal-500'}`}>{unavailable ? <XCircle size={15} /> : <CheckCircle2 size={15} />}{t(product.name)}</button> })}</div>
+        </section>
+        <section className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-charcoal-900">{t('console.activity_log')}</h3>
+            {logs.length > 0 && <button onClick={onClearLogs} className="flex items-center gap-1 text-xs font-semibold text-charcoal-500 transition hover:text-chili-500"><Trash2 size={14} />{t('console.clear_log')}</button>}
+          </div>
+          {reversedLogs.length === 0 ? (
+            <p className="mt-3 text-sm text-charcoal-400">{t('console.log_empty')}</p>
+          ) : (
+            <ul className="mt-3 max-h-48 space-y-1 overflow-y-auto pr-1">
+              {reversedLogs.map((log) => (
+                <li key={log.id} className="flex gap-2 text-sm text-charcoal-600">
+                  <span className="shrink-0 font-mono text-xs text-charcoal-400">{log.timestamp}</span>
+                  <span>{log.detail}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
         <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><Button variant="outline" onClick={onReset}><RotateCcw size={17} />{t('console.reset')}</Button><Button onClick={() => onOpenChange(false)}>{t('console.done')}</Button></div>
       </DialogContent>

@@ -147,11 +147,13 @@ export default function App() {
         stage={state.orderStage}
         soldOut={state.soldOut}
         services={state.services}
+        logs={state.logs}
         onOpenChange={setConsoleOpen}
         onStage={(stage) => dispatch({ type: 'SET_STAGE', stage })}
         onSoldOut={(productId) => dispatch({ type: 'TOGGLE_SOLD_OUT', productId })}
         onRespond={() => dispatch({ type: 'RESPOND_SERVICES' })}
         onReset={() => { dispatch({ type: 'RESET' }); setConsoleOpen(false) }}
+        onClearLogs={() => dispatch({ type: 'CLEAR_LOGS' })}
       />
 
       <Dialog open={cartOpen} onOpenChange={setCartOpen}>

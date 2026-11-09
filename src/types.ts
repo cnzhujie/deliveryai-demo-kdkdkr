@@ -40,6 +40,25 @@ export interface ServiceRequest {
   status: 'waiting' | 'responded'
 }
 
+export type LogEvent =
+  | 'bind_table'
+  | 'add_cart'
+  | 'change_qty'
+  | 'submit_order'
+  | 'set_stage'
+  | 'call_service'
+  | 'respond_services'
+  | 'toggle_sold_out'
+  | 'pay'
+
+export interface LogEntry {
+  id: string
+  timestamp: string
+  event: LogEvent
+  detail: string
+}
+
+
 export interface AppState {
   view: ViewName
   table: string | null
@@ -51,6 +70,7 @@ export interface AppState {
   services: ServiceRequest[]
   paid: boolean
   lastMessage: string
+  logs: LogEntry[]
 }
 
 export type AppAction =
@@ -67,3 +87,4 @@ export type AppAction =
   | { type: 'PAY' }
   | { type: 'RESET' }
   | { type: 'SET_MESSAGE'; message: string }
+  | { type: 'CLEAR_LOGS' }
